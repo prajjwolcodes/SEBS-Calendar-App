@@ -6,6 +6,12 @@ import interactionPlugin from "@fullcalendar/interaction";
 import EventForm from "./EventForm"; // Import the EventForm component
 import { Link } from "react-router-dom";
 import Modal from "./Modal";
+import { FaCalendarAlt, FaRegStickyNote, FaRegClock } from "react-icons/fa";
+import { IoClose } from "react-icons/io5";
+import { formattedDate, formattedTime } from "../assets/utils/utils";
+import CreateBtn from "./CreateBtn";
+import toast from "react-hot-toast";
+import { motion } from "framer-motion";
 
 const CalendarComponent = () => {
     const calendarRef = useRef(null);
@@ -49,6 +55,7 @@ const CalendarComponent = () => {
         );
         localStorage.removeItem("appointments");
         localStorage.removeItem("event");
+        toast.success("Event removed successfully");
     };
 
 
@@ -88,70 +95,80 @@ const CalendarComponent = () => {
 
     const handleAppointmentClick = (appointment) => {
         setSelectedEvent(appointment); // Store the clicked event
-        setIsDescModalOpen(true); // Open the modal
+        setIsDescModalOpen(true)
     };
-    handleAppointmentClick
+
     return (
-        <div className="w-full lg:w-3/4 mx-auto py-5 relative">
-            <div className="w-full flex justify-between items-center mb-4 ">
-                <h1 className="text-2xl tracking-wide">Book your Appoiontment now</h1>
-                {/* Button to open modal with extra date-time input */}
-                <button
-                    className="bg-blue-500 w-44  text-white py-2 px-4 rounded mt-4"
-                    onClick={() => {
-                        setIsModalOpen(true);
-                        setOpenedByButton(true); // Indicate it was opened via the button
-                    }}
-                >
-                    Book Appointment
-                </button>
+        <div className="w-full py-5 px-6 relative">
+            <div className="flex gap-3 w-full">
+                <div>
+                    <CreateBtn setIsModalOpen={setIsModalOpen} setOpenedByButton={setOpenedByButton} />
+                </div>
+                <div className="w-full">
+                    <FullCalendar
+                        ref={calendarRef}
+                        plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
+                        initialView={"dayGridMonth"}
+                        eventClick={handleEventClick}
+                        headerToolbar={{
+                            start: "today prev,next",
+                            center: "title",
+                            end: "dayGridMonth,timeGridWeek,timeGridDay",
+                        }}
+                        events={events}
+                        selectable={true}
+                        select={handleDateSelect}
+                        height={"90vh"}
+                        allDaySlot={false}
+                        eventTimeFormat={{
+                            hour: 'numeric',
+                            minute: '2-digit',
+                            meridiem: 'short'
+                        }}
+                    />
+                </div>
             </div>
-            <FullCalendar
-                className="w-full"
-                ref={calendarRef}
-                plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
-                initialView={"dayGridMonth"}
-                eventClick={handleEventClick}
-                headerToolbar={{
-                    start: "today prev,next",
-                    center: "title",
-                    end: "dayGridMonth,timeGridWeek,timeGridDay",
-                }}
-                events={events}
-                selectable={true}
-                select={handleDateSelect}
-                height={"70vh"}
-                allDaySlot={false}
-                eventTimeFormat={{
-                    hour: 'numeric',
-                    minute: '2-digit',
-                    meridiem: 'short' // This displays the time in 12-hour format with AM/PM
-                }}
-
-            />
-
 
             {isDescModalOpen && selectedEvent && (
                 <Modal onClose={() => setIsDescModalOpen(false)}>
+                    <div className="flex justify-between items-center bg-blue-200 p-4 relative rounded-t-lg">
+                        <h2 className="text-xl font-semibold">{selectedEvent.title}</h2>
+                        <button onClick={() => setIsDescModalOpen(false)} className="absolute flex justify-center items-center text-2xl top-5 right-3 text-gray-700 hover:text-gray-900">
+                            <IoClose />
+                        </button>
+                    </div>
 
-                    <h2 className="text-xl font-semibold">{selectedEvent.title}</h2>
-                    <p>
-                        <strong>Start:</strong> {new Date(selectedEvent.start).toLocaleString()}
-                    </p>
-                    <p>
-                        <strong>End:</strong> {new Date(selectedEvent.end).toLocaleString()}
-                    </p>
-                    {selectedEvent.extendedProps.priority && (
-                        <p>
-                            <strong>Priority:</strong> {selectedEvent.extendedProps.priority}
-                        </p>
-                    )}
+                    {/* Body */}
+                    <div className="p-6 space-y-4">
+                        <div className="flex items-center space-x-2">
 
-                    HELLOS
+                            <span
+                                className={`inline-block w-3 h-3 rounded-full mr-2 ${selectedEvent.extendedProps.priority === "High"
+                                    ? "bg-red-500"
+                                    : selectedEvent.extendedProps.priority === "Normal"
+                                        ? "bg-green-500"
+                                        : "bg-yellow-500"
+                                    }`}
+                            ></span>
+                            Priority : {selectedEvent.extendedProps.priority}
+                        </div>
+                        <div className="flex items-center space-x-2">
+                            <FaCalendarAlt className="text-gray-600" />
+                            <p>{formattedDate(selectedEvent.start)}</p>
+                        </div>
+
+                        <div className="flex items-center space-x-2">
+                            <FaRegClock className="text-gray-600" />
+                            <p>{formattedTime(selectedEvent.start)} - {formattedTime(selectedEvent.end)}</p>
+                        </div>
+
+                        <div className="flex items-center space-x-2">
+                            <FaRegStickyNote className="text-gray-600" />
+                            <p>{selectedEvent.extendedProps.description}</p>
+                        </div>
+                    </div>
                 </Modal>
-            )
-            }
-
+            )}
 
             {/* Render the EventForm modal when the modal is open */}
             {
@@ -165,23 +182,55 @@ const CalendarComponent = () => {
                 )
             }
             <div>
-                <div className="flex justify-between items-center">
-                    <h1>Upcoming Appointments</h1>
+                <div className="flex justify-between items-center my-5">
+                    <h1 className="text-xl font-semibold  ">Upcoming Appointments</h1>
                     <Link to="/appointments" className="cursor-pointer hover:underline">View All</Link>
                 </div>
-                <ul className="mb-6">
+                {recentAppointments.length === 0 && (
+                    <p className="text-gray-600 text-sm">No appointments booked yet</p>
+                )}
+                <ul className="grid grid-cols-1 gap-6 mb-6">
                     {recentAppointments.map((appointment) => (
-                        <li key={appointment.id} className="flex justify-between items-center mb-2" onClick={() => handleAppointmentClick(appointment)}>
-                            <span>
-                                {appointment.title} - {appointment.start.toLocaleString()}
-                            </span>
+                        <motion.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            transition={{ duration: 0.5 }}
+                            key={appointment.id}
+                            onClick={() => handleAppointmentClick(appointment)}
+                            className="bg-white relative cursor-pointer border border-gray-200 rounded-lg shadow-md p-6">
+                            <div className="flex justify-between items-center mb-4">
+                                <div className="text-sm text-gray-600 flex items-center">
+                                    <span
+                                        className={`inline-block w-3 h-3 rounded-full mr-2 ${appointment.extendedProps.priority === "High"
+                                            ? "bg-red-500"
+                                            : appointment.extendedProps.priority === "Normal"
+                                                ? "bg-green-500"
+                                                : "bg-yellow-500"
+                                            }`}
+                                    ></span>
+                                    <p>{formattedDate(appointment.start)}</p>
+                                </div>
+                                {/* Full day event badge */}
+                                <div className="bg-blue-100 text-blue-600 text-xs font-medium py-1 px-3 rounded-lg">
+                                    {appointment.extendedProps.priority}
+                                </div>
+                            </div>
+
+                            {/* Title and Description */}
+                            <div className="text-gray-900 font-bold text-xl mb-2">
+                                {appointment.title}
+                            </div>
+                            <p className="text-gray-700 text-base">
+                                {appointment.extendedProps.description}
+                            </p>
                             <button
                                 onClick={() => handleDeleteAppointment(appointment.id)}
-                                className="ml-4 px-2 py-1 bg-red-500 text-white rounded"
+                                className="absolute bottom-3 right-5 ml-4 px-6 py-1 bg-red-500 text-white rounded"
                             >
                                 Delete
                             </button>
-                        </li>
+                        </motion.div>
                     ))}
                 </ul>
 

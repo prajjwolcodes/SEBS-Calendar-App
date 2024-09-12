@@ -1,4 +1,6 @@
 import React, { useState } from "react";
+import toast from "react-hot-toast";
+import { motion } from "framer-motion";
 
 const EventForm = ({ onClose, onSubmit, initialEvent, openedByButton }) => {
     const [eventDetails, setEventDetails] = useState({
@@ -21,8 +23,6 @@ const EventForm = ({ onClose, onSubmit, initialEvent, openedByButton }) => {
 
     const handleFormSubmit = (e) => {
         e.preventDefault();
-
-        // Use the selected or additional date for event start and end
         const selectedDate = openedByButton
             ? eventDetails.additionalDateTime
             : eventDetails.date;
@@ -39,12 +39,20 @@ const EventForm = ({ onClose, onSubmit, initialEvent, openedByButton }) => {
         };
 
         localStorage.setItem("event", JSON.stringify(eventData));
-        onSubmit(eventData); // Pass event details back to the parent
+        onSubmit(eventData);
+        toast.success("Event added successfully");
+
     };
 
     return (
-        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 z-10 flex justify-center items-center">
-            <div className="bg-white p-6 rounded-lg shadow-lg w-96">
+        <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.3 }}
+
+            className="fixed inset-0 bg-gray-600 bg-opacity-50 z-10 flex justify-center items-center" >
+            <div className="bg-white p-6 rounded-lg shadow-lg w-[450px] ">
                 <h2 className="text-2xl mb-4">Add New Event</h2>
                 <form onSubmit={handleFormSubmit}>
                     <div className="mb-4">
@@ -139,7 +147,7 @@ const EventForm = ({ onClose, onSubmit, initialEvent, openedByButton }) => {
                     </div>
                 </form>
             </div>
-        </div>
+        </motion.div >
     );
 };
 
