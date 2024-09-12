@@ -5,13 +5,16 @@ import timeGridPlugin from "@fullcalendar/timegrid";
 import interactionPlugin from "@fullcalendar/interaction";
 import EventForm from "./EventForm"; // Import the EventForm component
 import { Link } from "react-router-dom";
+import Modal from "./Modal";
 
 const CalendarComponent = () => {
     const calendarRef = useRef(null);
+    const [selectedEvent, setSelectedEvent] = useState(null); // To store the clicked event
 
     const [recentAppointments, setRecentAppointments] = useState([]);
     const [events, setEvents] = useState(localStorage.getItem("appointments") ? JSON.parse(localStorage.getItem("appointments")) : []); // Get events from local storage
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isDescModalOpen, setIsDescModalOpen] = useState(false);
     const [selectInfo, setSelectInfo] = useState(null);
     const [openedByButton, setOpenedByButton] = useState(false); // Track how the modal was opened
 
@@ -71,12 +74,23 @@ const CalendarComponent = () => {
                 start: eventDetails.start,
                 end: eventDetails.end,
                 allDay: false,
+                priority: eventDetails.priority,
             },
         ]);
         setIsModalOpen(false);
     };
 
 
+    const handleEventClick = (clickInfo) => {
+        setSelectedEvent(clickInfo.event); // Store the clicked event
+        setIsDescModalOpen(true); // Open the modal
+    };
+
+    const handleAppointmentClick = (appointment) => {
+        setSelectedEvent(appointment); // Store the clicked event
+        setIsDescModalOpen(true); // Open the modal
+    };
+    handleAppointmentClick
     return (
         <div className="w-full lg:w-3/4 mx-auto py-5 relative">
             <div className="w-full flex justify-between items-center mb-4 ">
@@ -97,6 +111,7 @@ const CalendarComponent = () => {
                 ref={calendarRef}
                 plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
                 initialView={"dayGridMonth"}
+                eventClick={handleEventClick}
                 headerToolbar={{
                     start: "today prev,next",
                     center: "title",
@@ -116,15 +131,39 @@ const CalendarComponent = () => {
             />
 
 
+            {isDescModalOpen && selectedEvent && (
+                <Modal onClose={() => setIsDescModalOpen(false)}>
+
+                    <h2 className="text-xl font-semibold">{selectedEvent.title}</h2>
+                    <p>
+                        <strong>Start:</strong> {new Date(selectedEvent.start).toLocaleString()}
+                    </p>
+                    <p>
+                        <strong>End:</strong> {new Date(selectedEvent.end).toLocaleString()}
+                    </p>
+                    {selectedEvent.extendedProps.priority && (
+                        <p>
+                            <strong>Priority:</strong> {selectedEvent.extendedProps.priority}
+                        </p>
+                    )}
+
+                    HELLOS
+                </Modal>
+            )
+            }
+
+
             {/* Render the EventForm modal when the modal is open */}
-            {isModalOpen && (
-                <EventForm
-                    onClose={() => setIsModalOpen(false)}
-                    onSubmit={handleFormSubmit}
-                    initialEvent={selectInfo}
-                    openedByButton={openedByButton} // Pass prop to EventForm
-                />
-            )}
+            {
+                isModalOpen && (
+                    <EventForm
+                        onClose={() => setIsModalOpen(false)}
+                        onSubmit={handleFormSubmit}
+                        initialEvent={selectInfo}
+                        openedByButton={openedByButton} // Pass prop to EventForm
+                    />
+                )
+            }
             <div>
                 <div className="flex justify-between items-center">
                     <h1>Upcoming Appointments</h1>
@@ -132,7 +171,7 @@ const CalendarComponent = () => {
                 </div>
                 <ul className="mb-6">
                     {recentAppointments.map((appointment) => (
-                        <li key={appointment.id} className="flex justify-between items-center mb-2">
+                        <li key={appointment.id} className="flex justify-between items-center mb-2" onClick={() => handleAppointmentClick(appointment)}>
                             <span>
                                 {appointment.title} - {appointment.start.toLocaleString()}
                             </span>
@@ -147,7 +186,7 @@ const CalendarComponent = () => {
                 </ul>
 
             </div>
-        </div>
+        </div >
     );
 };
 

@@ -7,7 +7,8 @@ const EventForm = ({ onClose, onSubmit, initialEvent, openedByButton }) => {
         date: initialEvent?.start || "",
         startTime: "",
         endTime: "",
-        additionalDateTime: "", // Store the additional date
+        additionalDateTime: "",
+        priority: "Normal" // Store the additional date
     });
 
     const handleInputChange = (e) => {
@@ -34,6 +35,7 @@ const EventForm = ({ onClose, onSubmit, initialEvent, openedByButton }) => {
             description: eventDetails.description,
             start: startDateTime,
             end: endDateTime,
+            priority: eventDetails.priority,
         };
 
         localStorage.setItem("event", JSON.stringify(eventData));
@@ -81,27 +83,43 @@ const EventForm = ({ onClose, onSubmit, initialEvent, openedByButton }) => {
                         </div>
                     )}
 
-                    <div className="mb-4">
-                        <label className="block text-gray-700">Start Time:</label>
-                        <input
-                            type="time"
-                            name="startTime"
-                            value={eventDetails.startTime}
-                            onChange={handleInputChange}
-                            className="w-full border border-gray-300 p-2 rounded-lg"
-                            required
-                        />
+                    <div className="flex gap-2">
+                        <div className="mb-4 w-1/2">
+                            <label className="block text-gray-700">Start Time:</label>
+                            <input
+                                type="time"
+                                name="startTime"
+                                value={eventDetails.startTime}
+                                onChange={handleInputChange}
+                                className="w-full border border-gray-300 p-2 rounded-lg"
+                                required
+                            />
+                        </div>
+                        <div className="mb-4 w-1/2">
+                            <label className="block text-gray-700">End Time:</label>
+                            <input
+                                type="time"
+                                name="endTime"
+                                value={eventDetails.endTime}
+                                onChange={handleInputChange}
+                                className="w-full border border-gray-300 p-2 rounded-lg"
+                                required
+                            />
+                        </div>
                     </div>
+
                     <div className="mb-4">
-                        <label className="block text-gray-700">End Time:</label>
-                        <input
-                            type="time"
-                            name="endTime"
-                            value={eventDetails.endTime}
+                        <label className="block text-gray-700">Priority:</label>
+                        <select
+                            name="priority"
+                            value={eventDetails.priority}
                             onChange={handleInputChange}
                             className="w-full border border-gray-300 p-2 rounded-lg"
-                            required
-                        />
+                        >
+                            <option value="High">High</option>
+                            <option value="Normal">Normal</option>
+                            <option value="Low">Low</option>
+                        </select>
                     </div>
 
                     <div className="flex justify-end">
