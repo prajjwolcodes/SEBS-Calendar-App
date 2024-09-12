@@ -1,0 +1,6 @@
+/* Change the background color of today's date */
+.fc-day-today {
+    background-color: #939ed3 !important; /* Tailwind amber-300 */
+    color: #000; /* Adjust text color if needed */
+  }
+  
