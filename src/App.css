@@ -12,3 +12,26 @@ font-family: 'Poppins', sans-serif;
   .fc-event {
     cursor: pointer;
   }
+
+
+  @media (max-width: 768px) {
+    .fc-toolbar h2 {
+      font-size: 1rem; /* Adjust the title size */
+    }
+  
+    .fc-button {
+      padding: 5px 10px; /* Reduce button padding */
+      font-size: 0.8rem; /* Adjust button text size */
+    }
+  }
+  
+    .fc-toolbar h2 {
+      font-size: 0.8rem;
+    
+    }
+    .fc-button {
+      padding: 4px 8px;
+      font-size: 0.7rem;
+    }
+  
+  

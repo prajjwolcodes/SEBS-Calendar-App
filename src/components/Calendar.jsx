@@ -12,6 +12,7 @@ import { formattedDate, formattedTime } from "../assets/utils/utils";
 import CreateBtn from "./CreateBtn";
 import toast from "react-hot-toast";
 import { motion } from "framer-motion";
+import "../App.css"
 
 const CalendarComponent = () => {
     const calendarRef = useRef(null);
@@ -98,10 +99,38 @@ const CalendarComponent = () => {
         setIsDescModalOpen(true)
     };
 
+
+    const [height, setHeight] = useState("90vh");
+
+    useEffect(() => {
+        const handleResize = () => {
+            if (window.innerWidth <= 640) {
+                setHeight("50vh");
+            } else if (window.innerWidth <= 820) {
+                setHeight("60vh");
+            } else {
+                setHeight("90vh");
+            }
+        };
+
+        handleResize();
+        window.addEventListener("resize", handleResize);
+        return () => {
+            window.removeEventListener("resize", handleResize);
+        };
+    }, []);
+
+    const calendarOptions = {
+        headerToolbar: window.innerWidth < 768 ?
+            { left: 'prev,next today', center: 'title', right: 'month,week' } :
+            { left: 'prev,next today', center: 'title', right: 'month,week,day' }
+    };
+
     return (
-        <div className="w-full py-5 px-6 relative">
-            <div className="flex gap-3 w-full">
+        <div className="w-full py-2 lg:py-5 px-0 lg:pr-6 relative">
+            <div className="flex flex-col lg:flex-row gap-3 w-full">
                 <div>
+                    <h1 className="text-lg md:text-2xl mb-4 lg:mb-6 md:px-4">My Calendar App</h1>
                     <CreateBtn setIsModalOpen={setIsModalOpen} setOpenedByButton={setOpenedByButton} />
                 </div>
                 <div className="w-full">
@@ -112,13 +141,13 @@ const CalendarComponent = () => {
                         eventClick={handleEventClick}
                         headerToolbar={{
                             start: "today prev,next",
-                            center: "title",
-                            end: "dayGridMonth,timeGridWeek,timeGridDay",
+                            center: window.innerWidth > 768 && "title",
+                            end: window.innerWidth > 768 ? "dayGridMonth,timeGridWeek,timeGridDay" : "dayGridMonth,dayGridWeek"
                         }}
                         events={events}
                         selectable={true}
                         select={handleDateSelect}
-                        height={"90vh"}
+                        height={height}
                         allDaySlot={false}
                         eventTimeFormat={{
                             hour: 'numeric',
@@ -199,7 +228,7 @@ const CalendarComponent = () => {
                             key={appointment.id}
                             onClick={() => handleAppointmentClick(appointment)}
                             className="bg-white relative cursor-pointer border border-gray-200 rounded-lg shadow-md p-6">
-                            <div className="flex justify-between items-center mb-4">
+                            <div className="flex justify-between items-center mb-2 md:mb-4">
                                 <div className="text-sm text-gray-600 flex items-center">
                                     <span
                                         className={`inline-block w-3 h-3 rounded-full mr-2 ${appointment.extendedProps.priority === "High"
@@ -209,7 +238,10 @@ const CalendarComponent = () => {
                                                 : "bg-yellow-500"
                                             }`}
                                     ></span>
-                                    <p>{formattedDate(appointment.start)}</p>
+                                    <div className="flex gap-2 text-xs md:text-sm ">
+                                        <p className="">{formattedDate(appointment.start)}</p>
+                                        <p>{formattedTime(appointment.start)} - {formattedTime(appointment.end)}</p>
+                                    </div>
                                 </div>
                                 {/* Full day event badge */}
                                 <div className="bg-blue-100 text-blue-600 text-xs font-medium py-1 px-3 rounded-lg">
@@ -218,15 +250,15 @@ const CalendarComponent = () => {
                             </div>
 
                             {/* Title and Description */}
-                            <div className="text-gray-900 font-bold text-xl mb-2">
+                            <div className="text-gray-900 font-bold text-lg md:text-xl mb-2">
                                 {appointment.title}
                             </div>
-                            <p className="text-gray-700 text-base">
+                            <p className="text-gray-700 text-sm md:text-base">
                                 {appointment.extendedProps.description}
                             </p>
                             <button
                                 onClick={() => handleDeleteAppointment(appointment.id)}
-                                className="absolute bottom-3 right-5 ml-4 px-6 py-1 bg-red-500 text-white rounded"
+                                className="absolute bottom-3 right-5 ml-4 text-sm md:text-base px-4 md:px-6 py-1 bg-red-500 text-white rounded"
                             >
                                 Delete
                             </button>

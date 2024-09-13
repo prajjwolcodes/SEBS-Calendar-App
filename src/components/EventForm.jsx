@@ -52,7 +52,7 @@ const EventForm = ({ onClose, onSubmit, initialEvent, openedByButton }) => {
             transition={{ duration: 0.3 }}
 
             className="fixed inset-0 bg-gray-600 bg-opacity-50 z-10 flex justify-center items-center" >
-            <div className="bg-white p-6 rounded-lg shadow-lg w-[450px] ">
+            <div className="bg-white p-6 rounded-lg shadow-lg w-[380px] lg:w-[450px] ">
                 <h2 className="text-2xl mb-4">Add New Event</h2>
                 <form onSubmit={handleFormSubmit}>
                     <div className="mb-4">
