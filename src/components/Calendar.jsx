@@ -105,7 +105,7 @@ const CalendarComponent = () => {
     useEffect(() => {
         const handleResize = () => {
             if (window.innerWidth <= 640) {
-                setHeight("80vh");
+                setHeight("60vh");
             } else if (window.innerWidth <= 820) {
                 setHeight("60vh");
             } else {
